@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<container xmlns="http://symfony.com/schema/dic/services" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <defaults autoconfigure="true" autowire="true" public="true" />
+
+        <service id="sylius_billingo_plugin.event_producer.order_payment_paid" class="ZamboDaniel\SyliusBillingoPlugin\EventProducer\OrderPaymentPaidProducer">
+            <argument type="service" id="sylius.event_bus" />
+            <argument type="service" id="sylius_billingo_plugin.date_time_provider" />
+            <argument type="service" id="sylius_billingo_plugin.repository.invoice" />
+        </service>
+
+        <service id="sylius_billingo_plugin.event_listener.order_placed" class="ZamboDaniel\SyliusBillingoPlugin\EventListener\CreateInvoiceOnOrderPlacedListener">
+            <argument type="service" id="sylius_billingo_plugin.creator.invoice" />
+            <tag name="messenger.message_handler" bus="sylius.event_bus" />
+        </service>
+
+        <service id="sylius_billingo_plugin.event_producer.order_placed" class="ZamboDaniel\SyliusBillingoPlugin\EventProducer\OrderPlacedProducer">
+            <argument type="service" id="sylius.event_bus" />
+            <argument type="service" id="sylius_billingo_plugin.date_time_provider" />
+            <tag name="doctrine.event_listener" event="postPersist" />
+            <tag name="doctrine.event_listener" event="postUpdate" />
+        </service>
+
+        <service id="sylius_billingo_plugin.listener.order_payment_paid" class="ZamboDaniel\SyliusBillingoPlugin\EventListener\OrderPaymentPaidListener">
+            <argument type="service" id="sylius.command_bus" />
+            <tag name="messenger.message_handler" bus="sylius.event_bus" />
+        </service>
+    </services>
+</container>
